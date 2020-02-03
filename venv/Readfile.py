@@ -1,3 +1,4 @@
+import config
 import csv
 import tkinter as tk
 from tkinter import filedialog
@@ -11,7 +12,7 @@ def ReadData():
         filedata = filedialog.askopenfilename()
         root.update()
         root.withdraw()
-        print("File: " + filedata + "\n==========================")
+        print("File: " + filedata + "\n================================")
         if filedata != "":
             reader = csv.DictReader(open(filedata))
             break
@@ -24,3 +25,12 @@ def ReadData():
 
     root.destroy()
     return (staticport_list)
+
+def ReadEPG():
+    epg_detail = []
+    fileEPG = config.epg_detail
+    reader = csv.DictReader(open(fileEPG))
+    for line in reader:
+        epg_detail.append(line)
+    
+    return (epg_detail)

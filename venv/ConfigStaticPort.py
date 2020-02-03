@@ -1,13 +1,10 @@
 import config
 import xml.etree.ElementTree as ET
+import Readfile
 from pyaci import *
 from termcolor import *
 from Readfile import ReadData as ReadData
 from colorama import Fore, Back, Style
-
-def ExtractVLAN(vlan):
-    vlan_list = vlan.split(",")
-    return vlan_list
 
 def CreatePathConfig(pod, nodeA, nodeB, eth, vpc):
     #Check ETH Port
@@ -22,25 +19,32 @@ def CreatePathConfig(pod, nodeA, nodeB, eth, vpc):
 
 def SendConfigToAPIC(select_method, apic, configport):
     for value in configport:
-        #vlan_list = ExtractVLAN(value["VLAN"])
-        #for
-        tenant = value["Tenant"]
-        appprofile = value["AppProfile"]
-        epg = value["EPG"]
-        vlan = "vlan-"+ str(value["VLAN"])
-        tDn = CreatePathConfig(value["POD"], value["nodeID_A"], value["nodeID_B"], value["Interface_ETH"], value["Interface_VPC"])
-        commit_config = apic.mit.polUni().fvTenant(tenant).fvAp(appprofile).fvAEPg(epg).fvRsPathAtt(encap = vlan , instrImedcy = "immediate", tDn = tDn ,status = select_method)
+        list_epg = Readfile.ReadEPG()
+        vlan_list = value["VLAN"].split(",")
 
-        try:
-            result = commit_config.POST(format='xml')
-            print("Status Code: " + colored(str(result.status_code), "green") + "\tMethod: " + select_method.upper())
-            print("Detail: " +"(Tenant) ===> " + colored(tenant,"yellow") + "\t(EPG) ===> " + colored(epg, "blue") + "\t(Path) ===> " + tDn)
-        except pyaci.errors.RestError as e:
-            parse = (ET.fromstring(str(e))).find('./error')
-            status = parse.attrib['code']
-            error = ((parse.attrib['text']).split("; "))[1]
-            print("Status code: "+ colored(status,"red") +  "\tMethod: " + select_method.upper()  + "\nDetail: " + error)
-            continue
+        for i in vlan_list:
+            for j in list_epg:
+                if j["Vlan"] == i:
+                    tenant = j["Tenant"]
+                    appprofile = j["AppProfile"]
+                    epg = j["EPG Name"]
+                    vlan = "vlan-" + str(j["Vlan"])
+                    tDn = CreatePathConfig(value["POD"], value["nodeID_A"], value["nodeID_B"], value["Interface_ETH"], value["Interface_VPC"])
+                    commit_config = apic.mit.polUni().fvTenant(tenant).fvAp(appprofile).fvAEPg(epg).fvRsPathAtt(encap=vlan, instrImedcy="immediate", tDn=tDn, status=select_method)
+
+                    try:
+                        result = commit_config.POST(format='xml')
+                        print("Status Code: " + colored(str(result.status_code),
+                                                        "green") + "\tMethod: " + select_method.upper())
+                        print("Detail: " + "(Tenant) ===> " + colored(tenant, "yellow") + "\t(EPG) ===> " + colored(epg,"blue") + "\t(Path) ===> " + tDn)
+                        print("---------------------------------")
+                    except pyaci.errors.RestError as e:
+                        parse = (ET.fromstring(str(e))).find('./error')
+                        status = parse.attrib['code']
+                        error = ((parse.attrib['text']).split("; "))[1]
+                        print("Status code: " + colored(status,"red") + "\tMethod: " + select_method.upper() + "\nDetail: " + error)
+                        print("---------------------------------")
+                        continue
 
 def LoginACI():
     apic = Node(config.apicserver)
