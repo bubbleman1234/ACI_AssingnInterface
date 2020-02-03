@@ -1,0 +1,7 @@
+POD,Tenant,AppProfile,EPG,VLAN,PortType,nodeID_A,nodeID_B,Interface_ETH,Interface_VPC_A,Interface_VPC_B
+1,TN-Ball,ANP-TEST,EPG-TEST,206,Trunk,1001,,1/4,,
+1,TN-Ball,ANP-TEST,EPG-TEST,206,Trunk,1001,,1/5,,
+1,TN-Ball,ANP-TEST,EPG-TEST,206,Trunk,1001,,1/6,,
+1,TN-Ball,ANP-TEST,EPG-TEST,206,Trunk,1001,,1/7,,
+1,TN-Ball,ANP-TEST,EPG-TEST,206,Trunk,1001,,1/8,,
+1,TN-Ball,ANP-TEST,EPG-TEST,206,Trunk,1001,,1/9,,
